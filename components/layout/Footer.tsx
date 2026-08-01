@@ -5,7 +5,7 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-charcoal text-off-white pt-16 pb-8 border-t-[6px] border-primary-blue">
+    <footer className="bg-charcoal text-off-white pt-16 pb-8 border-t-[6px] border-primary-yellow">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Company Info */}
@@ -41,7 +41,7 @@ export function Footer() {
               <li><Link href="/services/registration-renewal" className="text-gray-400 hover:text-white transition-colors text-sm">Registration & Renewal</Link></li>
               <li><Link href="/services/accounting-services" className="text-gray-400 hover:text-white transition-colors text-sm">Accounting Services</Link></li>
               <li><Link href="/services/tax-planning-management" className="text-gray-400 hover:text-white transition-colors text-sm">Tax Planning</Link></li>
-              <li><Link href="/services" className="text-primary-blue font-medium hover:text-white transition-colors text-sm">View All Services →</Link></li>
+              <li><Link href="/services" className="text-primary-yellow font-medium hover:text-white transition-colors text-sm">View All Services →</Link></li>
             </ul>
           </div>
 

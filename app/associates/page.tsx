@@ -21,16 +21,16 @@ export default function AssociatesPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
             {associatesData.map(associate => (
-              <div key={associate.id} className="bg-off-white p-8 rounded-2xl border border-gray-100 flex flex-col md:flex-row gap-6 hover:shadow-md transition-shadow">
-                <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center text-primary-blue shadow-sm shrink-0">
+              <div key={associate.id} className="card-surface group flex flex-col gap-6 rounded-2xl p-8 md:flex-row">
+                <div className="card-icon flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl">
                   <Building2 className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-dark-navy mb-2">{associate.name}</h3>
-                  <div className="inline-block px-3 py-1 bg-green-50 text-corporate-green text-xs font-bold uppercase tracking-wider rounded mb-4">
+                  <h3 className="mb-2 text-xl font-bold text-deep-green">{associate.name}</h3>
+                  <div className="mb-4 inline-block rounded-full bg-green-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-corporate-green">
                     {associate.industry}
                   </div>
-                  <p className="text-muted-gray leading-relaxed">
+                  <p className="leading-relaxed text-muted-gray">
                     {associate.description}
                   </p>
                 </div>

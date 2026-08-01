@@ -23,10 +23,10 @@ export default function ClientsPage() {
             {clientsData.map(client => (
               <div 
                 key={client.id} 
-                className="bg-off-white border border-gray-100 p-6 rounded-xl hover:border-primary-blue hover:shadow-md transition-all flex items-center space-x-3 group"
+                className="card-surface group flex min-h-24 items-center space-x-3 rounded-2xl p-6"
               >
                 <CheckCircle className="w-5 h-5 text-corporate-green opacity-50 group-hover:opacity-100 transition-opacity shrink-0" />
-                <span className="font-semibold text-charcoal group-hover:text-primary-blue transition-colors">{client.name}</span>
+                <span className="font-semibold text-charcoal transition-colors group-hover:text-deep-green">{client.name}</span>
               </div>
             ))}
           </div>

@@ -32,17 +32,17 @@ export default function AboutPage() {
                 "Proven Track Record",
                 "100% Compliance Focused"
               ].map((item, idx) => (
-                <div key={idx} className="flex items-center space-x-3 bg-off-white p-4 rounded-lg border border-gray-100">
+                <div key={idx} className="flex items-center space-x-3 rounded-xl border border-yellow-100 bg-off-white p-4 transition-colors hover:border-primary-yellow hover:bg-yellow-50">
                   <CheckCircle2 className="w-5 h-5 text-corporate-green shrink-0" />
-                  <span className="font-semibold text-dark-navy text-sm">{item}</span>
+                  <span className="font-semibold text-deep-green text-sm">{item}</span>
                 </div>
               ))}
             </div>
           </div>
           
           <div className="lg:w-1/2 w-full">
-            <div className="bg-dark-navy rounded-2xl p-12 text-white relative overflow-hidden shadow-2xl">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary-blue rounded-bl-full opacity-50"></div>
+            <div className="bg-deep-green rounded-2xl p-12 text-white relative overflow-hidden shadow-2xl">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary-yellow rounded-bl-full opacity-50"></div>
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-corporate-green rounded-tr-full opacity-20"></div>
               
               <div className="relative z-10">
@@ -54,7 +54,7 @@ export default function AboutPage() {
                   "In today's complex regulatory environment, businesses need more than just isolated advice. They need integrated strategies where legal, financial, and operational considerations are aligned. That is the MGC advantage."
                 </blockquote>
                 <div className="font-bold text-lg">Seraj Mikrani</div>
-                <div className="text-blue-200 text-sm">CEO, MGC Associates</div>
+                <div className="text-yellow-200 text-sm">CEO, MGC Associates</div>
               </div>
             </div>
           </div>

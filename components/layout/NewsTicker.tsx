@@ -15,8 +15,8 @@ export function NewsTicker() {
     <div className="bg-light-yellow text-charcoal border-b border-yellow-300 py-2 relative overflow-hidden flex items-center">
       <div className="container mx-auto px-4 flex items-center">
         <div className="flex items-center space-x-2 bg-light-yellow z-10 pr-4 font-bold text-sm shrink-0">
-          <Bell className="w-4 h-4 text-primary-blue" />
-          <span className="text-primary-blue uppercase tracking-wider text-xs">Latest Updates</span>
+          <Bell className="w-4 h-4 text-deep-green" />
+          <span className="text-deep-green uppercase tracking-wider text-xs">Latest Updates</span>
         </div>
         
         <div 
@@ -32,7 +32,7 @@ export function NewsTicker() {
               <Link 
                 key={`${notice.id}-${idx}`} 
                 href={`/news/${notice.slug}`}
-                className="text-sm hover:text-primary-blue transition-colors inline-block group"
+                className="text-sm hover:text-deep-green transition-colors inline-block group"
               >
                 <span className="font-semibold mr-2">{notice.date}</span>
                 <span className="group-hover:underline">{notice.headline}</span>
