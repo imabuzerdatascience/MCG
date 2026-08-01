@@ -10,10 +10,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Company Info */}
           <div>
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="w-10 h-10 bg-white text-primary-blue flex items-center justify-center font-bold text-xl rounded">
-                MGC
-              </div>
+            <div className="flex items-center space-x-3 mb-6">
+              <img src="/logo.jpeg" alt="MGC Associates" className="w-12 h-12 object-contain rounded" />
               <div className="flex flex-col">
                 <span className="font-bold text-white text-lg leading-tight">MGC ASSOCIATES</span>
                 <span className="text-[10px] text-gray-400 uppercase tracking-wider">Pvt. Ltd.</span>

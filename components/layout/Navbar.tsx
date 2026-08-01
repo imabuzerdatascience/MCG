@@ -38,11 +38,8 @@ export function Navbar() {
       )}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
-        {/* Logo Placeholder */}
-        <Link href="/" className="flex items-center space-x-2 group">
-          <div className="w-10 h-10 bg-primary-blue text-white flex items-center justify-center font-bold text-xl rounded group-hover:bg-dark-navy transition-colors">
-            MGC
-          </div>
+        <Link href="/" className="flex items-center space-x-3 group">
+          <img src="/logo.jpeg" alt="MGC Associates" className="w-10 h-10 object-contain rounded" />
           <div className="flex flex-col">
             <span className="font-bold text-primary-blue text-lg leading-tight group-hover:text-dark-navy transition-colors">MGC ASSOCIATES</span>
             <span className="text-[10px] text-muted-gray uppercase tracking-wider">Corporate Business Partner</span>

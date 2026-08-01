@@ -13,7 +13,8 @@ export const leadershipData: TeamMember[] = [
     name: "Seraj Mikrani",
     position: "CEO",
     qualification: "MBA, LL.B",
-    experience: "15+ years in Corporate Management, Legal Services, Business Development & Consulting. Recognized for professional contributions connected with the SAARC Youth Conference."
+    experience: "15+ years in Corporate Management, Legal Services, Business Development & Consulting. Recognized for professional contributions connected with the SAARC Youth Conference.",
+    imageUrl: "/ceo%20image.jpeg"
   },
   {
     id: "mohini-prasad",
