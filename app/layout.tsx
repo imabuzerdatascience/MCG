@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { TopBar } from "@/components/layout/TopBar";
 import { NewsTicker } from "@/components/layout/NewsTicker";
@@ -8,6 +8,11 @@ import { Footer } from "@/components/layout/Footer";
 
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
 });
 

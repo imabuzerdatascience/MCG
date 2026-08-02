@@ -97,7 +97,7 @@ export function Navbar() {
           <Link 
             href="/contact"
             onClick={() => setMobileMenuOpen(false)}
-            className="mt-4 bg-corporate-green text-white px-5 py-3 rounded-md text-sm font-medium text-center shadow-sm"
+            className="mt-4 bg-primary-yellow hover:bg-yellow-400 text-charcoal px-5 py-3 rounded-md text-sm font-bold text-center shadow-sm"
           >
             Book a Consultation
           </Link>
