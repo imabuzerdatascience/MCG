@@ -13,7 +13,7 @@ export default function ContactPage() {
         <div className="container mx-auto px-4 flex flex-col lg:flex-row gap-16">
           
           <div className="lg:w-1/3">
-            <h3 className="text-2xl font-bold text-dark-navy mb-8">Reach Out to Us</h3>
+            <h3 className="text-2xl font-bold text-deep-green mb-8">Reach Out to Us</h3>
             
             <div className="space-y-8">
               <div className="flex items-start">
@@ -21,10 +21,10 @@ export default function ContactPage() {
                   <MapPin className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-dark-navy mb-1">Contact Office</h4>
+                  <h4 className="font-bold text-deep-green mb-1">Contact Office</h4>
                   <p className="text-muted-gray text-sm">Kathmandu Metropolitan Ward No. 15,<br />Chamati, Bagmati Province, Nepal</p>
                   
-                  <h4 className="font-bold text-dark-navy mt-4 mb-1">Registered Office</h4>
+                  <h4 className="font-bold text-deep-green mt-4 mb-1">Registered Office</h4>
                   <p className="text-muted-gray text-sm">Dakshinkali Ward No. 1,<br />Kathmandu, Bagmati Province, Nepal</p>
                 </div>
               </div>
@@ -34,7 +34,7 @@ export default function ContactPage() {
                   <Phone className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-dark-navy mb-1">Phone</h4>
+                  <h4 className="font-bold text-deep-green mb-1">Phone</h4>
                   <p className="text-muted-gray text-sm">014-977786</p>
                   <p className="text-muted-gray text-sm">+977-9815239074</p>
                 </div>
@@ -45,12 +45,12 @@ export default function ContactPage() {
                   <Mail className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-dark-navy mb-1">Email & Web</h4>
+                  <h4 className="font-bold text-deep-green mb-1">Email & Web</h4>
                   <p className="text-muted-gray text-sm">
-                    <a href="mailto:info.mgcbusiness@gmail.com" className="hover:text-primary-blue">info.mgcbusiness@gmail.com</a>
+                    <a href="mailto:info.mgcbusiness@gmail.com" className="hover:text-primary-yellow">info.mgcbusiness@gmail.com</a>
                   </p>
                   <p className="text-muted-gray text-sm mt-1">
-                    <a href="https://www.mgcassociates.com.np" target="_blank" rel="noreferrer" className="hover:text-primary-blue">www.mgcassociates.com.np</a>
+                    <a href="https://www.mgcassociates.com.np" target="_blank" rel="noreferrer" className="hover:text-primary-yellow">www.mgcassociates.com.np</a>
                   </p>
                 </div>
               </div>

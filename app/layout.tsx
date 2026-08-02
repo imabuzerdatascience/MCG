@@ -38,9 +38,9 @@ export default function RootLayout({
       className={`${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-off-white text-charcoal">
+        <Navbar />
         <TopBar />
         <NewsTicker />
-        <Navbar />
         <main className="flex-1 flex flex-col">
           {children}
         </main>

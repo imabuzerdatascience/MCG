@@ -25,12 +25,12 @@ export function WhyChooseUs() {
           {features.map((feature, idx) => {
             const Icon = feature.icon;
             return (
-              <div key={idx} className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
-                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary-blue mb-4 group-hover:bg-primary-blue group-hover:text-white transition-colors">
+              <div key={idx} className="card-surface group h-full rounded-2xl p-6">
+                <div className="card-icon mb-5 flex h-11 w-11 items-center justify-center rounded-xl">
                   <Icon className="w-5 h-5" />
                 </div>
-                <h4 className="text-lg font-bold text-dark-navy mb-2">{feature.title}</h4>
-                <p className="text-sm text-muted-gray">{feature.desc}</p>
+                <h4 className="mb-2 text-lg font-bold text-deep-green">{feature.title}</h4>
+                <p className="text-sm leading-relaxed text-muted-gray">{feature.desc}</p>
               </div>
             );
           })}

@@ -2,7 +2,7 @@ import { MapPin, Phone, Mail } from "lucide-react";
 
 export function TopBar() {
   return (
-    <div className="bg-dark-navy text-off-white text-xs py-2 hidden md:block">
+    <div className="bg-deep-green text-off-white text-xs py-2 hidden md:block">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">

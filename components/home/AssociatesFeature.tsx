@@ -17,7 +17,7 @@ export function AssociatesFeature() {
           <div className="md:w-1/3 text-left md:text-right mb-12 md:mb-12">
             <Link 
               href="/associates"
-              className="inline-flex items-center text-primary-blue font-semibold hover:text-dark-navy transition-colors group"
+              className="inline-flex items-center font-semibold text-deep-green transition-colors hover:text-dark-green focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-yellow group"
             >
               View All Associates <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -26,13 +26,13 @@ export function AssociatesFeature() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {associatesData.map(associate => (
-            <div key={associate.id} className="bg-off-white p-6 rounded-xl border border-gray-100 hover:border-primary-blue/30 hover:shadow-md transition-all group flex flex-col">
-              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-primary-blue mb-4 shadow-sm group-hover:bg-primary-blue group-hover:text-white transition-colors shrink-0">
+            <div key={associate.id} className="card-surface group flex h-full flex-col rounded-2xl p-6">
+              <div className="card-icon mb-5 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl">
                 <Building2 className="w-6 h-6" />
               </div>
-              <h4 className="text-lg font-bold text-dark-navy mb-2 line-clamp-2 min-h-[56px]">{associate.name}</h4>
-              <div className="text-xs font-semibold text-corporate-green mb-3 uppercase tracking-wider">{associate.industry}</div>
-              <p className="text-sm text-muted-gray line-clamp-3">{associate.description}</p>
+              <h4 className="mb-2 min-h-[56px] text-lg font-bold text-deep-green line-clamp-2">{associate.name}</h4>
+              <div className="mb-3 text-xs font-bold uppercase tracking-wider text-corporate-green">{associate.industry}</div>
+              <p className="text-sm leading-relaxed text-muted-gray line-clamp-3">{associate.description}</p>
             </div>
           ))}
         </div>

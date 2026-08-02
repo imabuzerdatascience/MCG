@@ -16,23 +16,23 @@ export function LeadershipFeature() {
           subtitle="Meet the visionaries driving MGC Associates towards excellence."
         />
         
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mt-12 flex flex-col md:flex-row">
-          <div className="md:w-1/3 bg-gray-100 flex items-center justify-center p-12">
+        <div className="card-surface group mt-12 flex flex-col rounded-2xl md:flex-row">
+          <div className="flex items-center justify-center bg-yellow-50 p-10 md:w-1/3 md:p-12">
             {ceo.imageUrl ? (
-              <img src={ceo.imageUrl} alt={ceo.name} className="w-full max-w-[240px] rounded-full shadow-md" />
+              <img src={ceo.imageUrl} alt={ceo.name} className="w-full max-w-[240px] rounded-full border-4 border-white shadow-lg" />
             ) : (
-              <div className="w-48 h-48 bg-primary-blue rounded-full flex items-center justify-center text-white shadow-md">
+              <div className="flex h-48 w-48 items-center justify-center rounded-full bg-deep-green text-white shadow-lg">
                 <UserCircle2 className="w-32 h-32 opacity-80" />
               </div>
             )}
           </div>
           
-          <div className="md:w-2/3 p-10 md:p-12 flex flex-col justify-center">
-            <h3 className="text-3xl font-bold text-dark-navy mb-2">{ceo.name}</h3>
-            <div className="text-primary-blue font-semibold mb-1">{ceo.position}</div>
-            <div className="text-sm text-muted-gray mb-6">{ceo.qualification}</div>
+          <div className="flex flex-col justify-center p-8 md:w-2/3 md:p-12">
+            <h3 className="mb-2 text-3xl font-bold text-deep-green">{ceo.name}</h3>
+            <div className="mb-2 font-semibold text-corporate-green">{ceo.position}</div>
+            <div className="mb-6 text-sm text-muted-gray">{ceo.qualification}</div>
             
-            <p className="text-lg text-charcoal leading-relaxed mb-8">
+            <p className="mb-8 border-l-4 border-primary-yellow pl-5 text-lg leading-relaxed text-charcoal">
               "{ceo.experience}"
             </p>
             

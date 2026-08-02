@@ -41,7 +41,7 @@ export function Navbar() {
         <Link href="/" className="flex items-center space-x-3 group">
           <img src="/logo.jpeg" alt="MGC Associates" className="w-10 h-10 object-contain rounded" />
           <div className="flex flex-col">
-            <span className="font-bold text-primary-blue text-lg leading-tight group-hover:text-dark-navy transition-colors">MGC ASSOCIATES</span>
+            <span className="font-bold text-deep-green text-lg leading-tight group-hover:text-charcoal transition-colors">MGC ASSOCIATES</span>
             <span className="text-[10px] text-muted-gray uppercase tracking-wider">Corporate Business Partner</span>
           </div>
         </Link>
@@ -53,8 +53,8 @@ export function Navbar() {
               key={link.name} 
               href={link.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary-blue",
-                pathname === link.href ? "text-primary-blue font-semibold" : "text-charcoal"
+                "text-sm font-medium transition-colors hover:text-deep-green",
+                pathname === link.href ? "text-deep-green font-semibold" : "text-charcoal"
               )}
             >
               {link.name}
@@ -88,7 +88,7 @@ export function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
               className={cn(
                 "py-3 border-b border-gray-50 text-sm font-medium transition-colors",
-                pathname === link.href ? "text-primary-blue" : "text-charcoal"
+                pathname === link.href ? "text-deep-green" : "text-charcoal"
               )}
             >
               {link.name}

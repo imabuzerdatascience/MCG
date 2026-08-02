@@ -10,7 +10,7 @@ export function HeroSection() {
       {/* Background Decorative Elements */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-primary-blue/5 skew-x-12 transform origin-top-right"></div>
       
-      <div className="container mx-auto px-4 py-20 md:py-32 relative z-10 flex flex-col lg:flex-row items-center">
+      <div className="container mx-auto px-4 pt-10 md:pt-16 pb-12 md:pb-16 relative z-10 flex flex-col lg:flex-row items-center">
         <div className="lg:w-3/5 pr-0 lg:pr-12 mb-12 lg:mb-0">
           <div className="inline-flex items-center space-x-2 bg-blue-50 text-primary-blue px-4 py-2 rounded-full text-sm font-semibold mb-6 border border-blue-100">
             <CheckCircle2 className="w-4 h-4 text-corporate-green" />
