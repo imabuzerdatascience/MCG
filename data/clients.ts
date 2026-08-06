@@ -1,6 +1,7 @@
 export type Client = {
   id: string;
   name: string;
+  imageUrl?: string;
 };
 
 export const clientsData: Client[] = [

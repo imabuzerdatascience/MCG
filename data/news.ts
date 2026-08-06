@@ -6,6 +6,7 @@ export type NewsItem = {
   headline: string;
   shortDescription: string;
   isImportantNotice: boolean;
+  imageUrl?: string;
 };
 
 export const newsData: NewsItem[] = [

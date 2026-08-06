@@ -65,7 +65,7 @@ export function HeroSection() {
         <div className="lg:w-2/5 relative mt-12 lg:mt-0 w-full max-w-md mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden relative z-10">
             <div className="bg-dark-navy text-white p-6 flex justify-between items-center">
-              <h3 className="font-bold text-xl">Latest Updates</h3>
+              <h3 className="font-bold text-xl">Latest Update</h3>
               <Link href="/news" className="text-sm text-blue-200 hover:text-white transition-colors flex items-center">
                 View All <ArrowRight className="ml-1 w-4 h-4" />
               </Link>
