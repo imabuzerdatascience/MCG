@@ -1,3 +1,4 @@
+import { Navbar } from "@/components/layout/Navbar";
 import { PageHero } from "@/components/shared/PageHero";
 import { NewsCard } from "@/components/shared/NewsCard";
 import { newsData } from "@/data/news";
@@ -5,6 +6,7 @@ import { newsData } from "@/data/news";
 export default function NewsPage() {
   return (
     <>
+      <Navbar />
       <PageHero 
         title="News & Insights"
         description="Latest updates, corporate notices, and business insights from MGC Associates."

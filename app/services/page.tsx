@@ -1,3 +1,4 @@
+import { Navbar } from "@/components/layout/Navbar";
 import { PageHero } from "@/components/shared/PageHero";
 import { ServiceCard } from "@/components/shared/ServiceCard";
 import { servicesData } from "@/data/services";
@@ -5,6 +6,7 @@ import { servicesData } from "@/data/services";
 export default function ServicesPage() {
   return (
     <>
+      <Navbar />
       <PageHero 
         title="Our Services"
         description="Comprehensive, integrated business solutions tailored to meet the legal, financial, and strategic needs of modern organizations."
