@@ -8,15 +8,9 @@ export type Associate = {
 export const associatesData: Associate[] = [
   {
     id: "eros-traders",
-    name: "Eros Traders and Supplier Pvt. Ltd. / MGC Exim Pvt. Ltd.",
+    name: "Eros Traders and Supplier Pvt. Ltd.",
     industry: "B2B Supply & Logistics",
     description: "Specialized in supply chain management and comprehensive logistics solutions."
-  },
-  {
-    id: "daily-mini-mart",
-    name: "Daily Mini Mart",
-    industry: "Grocery & Daily Use Products",
-    description: "Retail chain providing quality grocery and daily use consumer products."
   },
   {
     id: "ktm-fashion",

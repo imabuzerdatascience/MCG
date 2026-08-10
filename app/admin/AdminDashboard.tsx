@@ -25,7 +25,7 @@ const initialContact: ContactSettings = {
   email: "info.mgcbusiness@gmail.com",
   primaryPhone: "+977-9815239074",
   secondaryPhone: "014-977786",
-  address: "Kathmandu Metropolitan Ward No. 15, Chamati, Bagmati Province, Nepal",
+  address: "Kathmandu Metropolitan Ward No. 15, Bagmati Province, Nepal",
   footerDescription: "A Group of Specialized Corporate Professionals for Complete Business Solutions.",
 };
 

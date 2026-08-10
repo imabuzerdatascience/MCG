@@ -53,7 +53,7 @@ export function Footer() {
                 <MapPin className="w-5 h-5 text-corporate-green shrink-0 mt-0.5" />
                 <span>
                   <strong>Contact Office:</strong><br />
-                  Kathmandu Metropolitan Ward No. 15, Chamati, Bagmati Province, Nepal
+                  Kathmandu Metropolitan Ward No. 15, Bagmati Province, Nepal
                 </span>
               </li>
               <li className="flex items-center space-x-3 text-sm text-gray-400">

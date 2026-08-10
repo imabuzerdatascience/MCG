@@ -10,7 +10,7 @@ export type TeamMember = {
 export const leadershipData: TeamMember[] = [
   {
     id: "seraj-mikrani",
-    name: "Seraj Mikrani",
+    name: "Adv Seraj Mikrani",
     position: "CEO",
     qualification: "MBA, LL.B",
     experience: "15+ years in Corporate Management, Legal Services, Business Development & Consulting. Recognized for professional contributions connected with the SAARC Youth Conference.",
@@ -50,12 +50,13 @@ export const leadershipData: TeamMember[] = [
     position: "Consultant",
     qualification: "Professional Consultant",
     experience: "Focused on entrepreneurship development and research."
-  },
-  {
-    id: "bimala-shrestha",
-    name: "Bimala Shrestha",
-    position: "Consultant",
-    qualification: "Professional Consultant",
-    experience: "Experienced in HR outsourcing, training, and talent management."
+  } ,
+    {
+    id: "Mohammad Abuzer Khan",
+    name: "Mohammad Abuzer Khan",
+    position: "IT Consultant",
+    qualification: "IT Professional",
+    experience: "Focused on IT solutions, digital transformation, and technology strategy."
   }
+
 ];

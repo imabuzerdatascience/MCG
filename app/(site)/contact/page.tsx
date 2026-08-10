@@ -22,7 +22,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h4 className="font-bold text-deep-green mb-1">Contact Office</h4>
-                  <p className="text-muted-gray text-sm">Kathmandu Metropolitan Ward No. 15,<br />Chamati, Bagmati Province, Nepal</p>
+                  <p className="text-muted-gray text-sm">Kathmandu Metropolitan Ward No. 15,<br />Bagmati Province, Nepal</p>
                   
                   <h4 className="font-bold text-deep-green mt-4 mb-1">Registered Office</h4>
                   <p className="text-muted-gray text-sm">Dakshinkali Ward No. 1,<br />Kathmandu, Bagmati Province, Nepal</p>

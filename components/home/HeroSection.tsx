@@ -75,7 +75,6 @@ export function HeroSection() {
                 <Link key={news.id} href={`/news/${news.slug}`} className="block p-4 hover:bg-gray-50 rounded-xl transition-colors border-b border-gray-100 last:border-0 group">
                   <div className="flex items-center space-x-2 text-xs text-muted-gray mb-2">
                     <span className="font-semibold text-primary-blue bg-blue-50 px-2 py-0.5 rounded">{news.category}</span>
-                    <span className="flex items-center"><Calendar className="w-3 h-3 mr-1"/>{news.date}</span>
                   </div>
                   <h4 className="font-bold text-charcoal group-hover:text-primary-blue transition-colors line-clamp-2 mb-1">{news.headline}</h4>
                   <p className="text-sm text-muted-gray line-clamp-2">{news.shortDescription}</p>
