@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getMongoDb } from "@/lib/mongodb";
 
-const allowedKeys = new Set(["top-contact", "footer", "news", "leadership", "clients"]);
+const allowedKeys = new Set(["top-contact", "footer", "news", "latest-news", "leadership", "clients"]);
 
 export async function PUT(request: Request) {
   if (!(await isAdminAuthenticated())) {

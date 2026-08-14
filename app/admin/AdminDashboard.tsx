@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BarChart3, Building2, FileText, Image as ImageIcon, LogOut, Menu, Newspaper, Phone, Users, X } from "lucide-react";
-import { newsData, type NewsItem } from "@/data/news";
+import { BarChart3, Building2, FileText, Image as ImageIcon, LogOut, Megaphone, Menu, Newspaper, Phone, Users, X } from "lucide-react";
+import { newsData, latestNewsData, type NewsItem } from "@/data/news";
 import { leadershipData, type TeamMember } from "@/data/team";
 import { clientsData, type Client } from "@/data/clients";
 import { ImageUploadField } from "./ImageUploadField";
@@ -17,8 +17,8 @@ import { ClientManager, NewsManager, TeamManager } from "./VisualContentEditors"
   footerDescription: string;
 };
 
-type Section = "overview" | "top-contact" | "news" | "leadership" | "clients" | "footer";
-type ContentKey = "top-contact" | "news" | "leadership" | "clients" | "footer";
+type Section = "overview" | "top-contact" | "news" | "latest-news" | "leadership" | "clients" | "footer";
+type ContentKey = "top-contact" | "news" | "latest-news" | "leadership" | "clients" | "footer";
 
 const initialContact: ContactSettings = {
   city: "Kathmandu, Nepal",
@@ -43,7 +43,8 @@ function readStored<T>(key: string, fallback: T): T {
 const navItems: { id: Section; label: string; icon: typeof BarChart3 }[] = [
   { id: "overview", label: "Overview", icon: BarChart3 },
   { id: "top-contact", label: "Contact details", icon: Phone },
-  { id: "news", label: "News & updates", icon: Newspaper },
+  { id: "news", label: "Latest Updates", icon: Newspaper },
+  { id: "latest-news", label: "Latest News", icon: Megaphone },
   { id: "leadership", label: "Team members", icon: Users },
   { id: "clients", label: "Our clients", icon: Building2 },
   { id: "footer", label: "Footer details", icon: FileText },
@@ -64,6 +65,7 @@ export function AdminDashboard() {
   const [mobileNav, setMobileNav] = useState(false);
   const [contact, setContact] = useState<ContactSettings>(() => readStored("contact", initialContact));
   const [news, setNews] = useState<NewsItem[]>(() => readStored("news", newsData));
+  const [latestNews, setLatestNews] = useState<NewsItem[]>(() => readStored("latest-news", latestNewsData));
   const [leadership, setLeadership] = useState<TeamMember[]>(() => readStored("leadership", leadershipData));
   const [clients, setClients] = useState<Client[]>(() => readStored("clients", clientsData));
   const [selectedNews, setSelectedNews] = useState(0);
@@ -84,7 +86,7 @@ export function AdminDashboard() {
   }
 
   async function saveContent(key: ContentKey, data: unknown) {
-    const next = { contact, news, leadership, clients, [key === "top-contact" || key === "footer" ? "contact" : key]: data };
+    const next = { contact, news, latestNews, leadership, clients, [key === "top-contact" || key === "footer" ? "contact" : key]: data };
     window.localStorage.setItem("mgc-admin-content", JSON.stringify(next));
     try {
       const response = await fetch("/api/admin/content", {
@@ -102,6 +104,11 @@ export function AdminDashboard() {
     const item: NewsItem = { id: `new-${Date.now()}`, slug: "new-update", category: "Business Insights", date: new Date().toISOString().slice(0, 10), headline: "New update", shortDescription: "Write a short description for this update.", isImportantNotice: true, imageUrl: "" };
     setNews((current) => [...current, item]);
     setSelectedNews(news.length);
+  }
+
+  function addLatestNews() {
+    const item: NewsItem = { id: `new-${Date.now()}`, slug: "new-news", category: "News", date: new Date().toISOString().slice(0, 10), headline: "New latest news", shortDescription: "Write a short description for this news item.", isImportantNotice: false, imageUrl: "" };
+    setLatestNews((current) => [...current, item]);
   }
 
   function addLeader() {
@@ -143,10 +150,11 @@ export function AdminDashboard() {
 
         <main className="mx-auto max-w-7xl p-5 sm:p-8">
           {notice && <div className="fixed right-6 top-24 z-40 rounded-lg bg-slate-900 px-5 py-3 text-sm text-white shadow-xl">{notice}</div>}
-          {section === "overview" && <Overview newsCount={news.length} publishedNews={publishedNews} leaderCount={leadership.length} clientCount={clients.length} onSelect={setSection} />}
+          {section === "overview" && <Overview newsCount={news.length} latestNewsCount={latestNews.length} publishedNews={publishedNews} leaderCount={leadership.length} clientCount={clients.length} onSelect={setSection} />}
           {section === "top-contact" && <ContactEditor title="Top contact bar" fields={contact} setFields={setContact} fieldsToShow={["city", "email", "primaryPhone", "secondaryPhone"]} onSave={() => saveContent("top-contact", contact)} />}
           {section === "footer" && <ContactEditor title="Footer contact details" fields={contact} setFields={setContact} fieldsToShow={["address", "primaryPhone", "secondaryPhone", "email", "footerDescription"]} onSave={() => saveContent("footer", contact)} />}
-          {section === "news" && <NewsManager items={news} setItems={setNews} onAdd={addNews} onSave={() => saveContent("news", news)} />}
+          {section === "news" && <NewsManager title="Latest Updates" items={news} setItems={setNews} onAdd={addNews} onSave={() => saveContent("news", news)} />}
+          {section === "latest-news" && <NewsManager title="Latest News" items={latestNews} setItems={setLatestNews} onAdd={addLatestNews} onSave={() => saveContent("latest-news", latestNews)} showFeatured={false} />}
           {section === "leadership" && <TeamManager items={leadership} setItems={setLeadership} onAdd={addLeader} onSave={() => saveContent("leadership", leadership)} />}
           {section === "clients" && <ClientManager items={clients} setItems={setClients} onAdd={addClient} onSave={() => saveContent("clients", clients)} />}
         </main>
@@ -155,9 +163,9 @@ export function AdminDashboard() {
   );
 }
 
-function Overview({ newsCount, publishedNews, leaderCount, clientCount, onSelect }: { newsCount: number; publishedNews: number; leaderCount: number; clientCount: number; onSelect: (section: Section) => void }) {
-  const cards = [{ label: "News & insights", value: newsCount, detail: `${publishedNews} featured updates`, section: "news" as Section, icon: Newspaper }, { label: "Leadership members", value: leaderCount, detail: "Manage team profiles", section: "leadership" as Section, icon: Users }, { label: "Clients", value: clientCount, detail: "Manage client records", section: "clients" as Section, icon: Building2 }];
-  return <><div className="mb-8"><p className="text-sm font-medium text-amber-600">Welcome to your website editor</p><h2 className="mt-1 text-3xl font-bold text-slate-900">What would you like to update?</h2><p className="mt-2 max-w-2xl text-slate-500">Choose an area below or use the menu on the left. You do not need any technical knowledge—edit the words, then press <strong>Save changes</strong>.</p></div><div className="grid gap-5 md:grid-cols-3">{cards.map(({ label, value, detail, section, icon: Icon }) => <button key={label} onClick={() => onSelect(section)} className="rounded-xl border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-amber-400"><div className="flex items-center justify-between"><span className="text-sm font-medium text-slate-500">{label}</span><Icon className="h-5 w-5 text-amber-500" /></div><p className="mt-4 text-4xl font-bold">{value}</p><p className="mt-2 text-sm text-slate-500">{detail}</p><span className="mt-5 inline-flex text-sm font-semibold text-amber-700">Edit this section →</span></button>)}</div><div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-6"><div className="flex gap-4"><ImageIcon aria-hidden="true" className="h-5 w-5 text-amber-600" /><div><h3 className="font-semibold text-slate-900">Need to change a photo?</h3><p className="mt-1 text-sm text-slate-600">Paste the photo link into the photo field. Image upload buttons will be added when Cloudinary is connected.</p></div></div></div></>;
+function Overview({ newsCount, latestNewsCount, publishedNews, leaderCount, clientCount, onSelect }: { newsCount: number; latestNewsCount: number; publishedNews: number; leaderCount: number; clientCount: number; onSelect: (section: Section) => void }) {
+  const cards = [{ label: "Latest Updates", value: newsCount, detail: `${publishedNews} featured updates`, section: "news" as Section, icon: Newspaper }, { label: "Latest News", value: latestNewsCount, detail: "Ticker headlines on the navbar", section: "latest-news" as Section, icon: Megaphone }, { label: "Leadership members", value: leaderCount, detail: "Manage team profiles", section: "leadership" as Section, icon: Users }, { label: "Clients", value: clientCount, detail: "Manage client records", section: "clients" as Section, icon: Building2 }];
+  return <><div className="mb-8"><p className="text-sm font-medium text-amber-600">Welcome to your website editor</p><h2 className="mt-1 text-3xl font-bold text-slate-900">What would you like to update?</h2><p className="mt-2 max-w-2xl text-slate-500">Choose an area below or use the menu on the left. You do not need any technical knowledge—edit the words, then press <strong>Save changes</strong>.</p></div><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">{cards.map(({ label, value, detail, section, icon: Icon }) => <button key={label} onClick={() => onSelect(section)} className="rounded-xl border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-amber-400"><div className="flex items-center justify-between"><span className="text-sm font-medium text-slate-500">{label}</span><Icon className="h-5 w-5 text-amber-500" /></div><p className="mt-4 text-4xl font-bold">{value}</p><p className="mt-2 text-sm text-slate-500">{detail}</p><span className="mt-5 inline-flex text-sm font-semibold text-amber-700">Edit this section →</span></button>)}</div><div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-6"><div className="flex gap-4"><ImageIcon aria-hidden="true" className="h-5 w-5 text-amber-600" /><div><h3 className="font-semibold text-slate-900">Need to change a photo?</h3><p className="mt-1 text-sm text-slate-600">Paste the photo link into the photo field. Image upload buttons will be added when Cloudinary is connected.</p></div></div></div></>;
 }
 
 function EditorFrame({ title, description, children, onSave, onAdd, onDelete, count }: { title: string; description: string; children: React.ReactNode; onSave: () => void; onAdd?: () => void; onDelete?: () => void; count?: number }) {

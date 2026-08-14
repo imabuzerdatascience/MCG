@@ -65,3 +65,33 @@ export const newsData: NewsItem[] = [
     isImportantNotice: false,
   }
 ];
+
+export const latestNewsData: NewsItem[] = [
+  {
+    id: "ln-1",
+    slug: "mcg-opens-new-representation-office",
+    category: "News",
+    date: "2024-05-02",
+    headline: "MGC Associates Opens New Representation Office in Bagmati Province",
+    shortDescription: "We have expanded our presence to better serve clients across the Bagmati region.",
+    isImportantNotice: false,
+  },
+  {
+    id: "ln-2",
+    slug: "tax-filing-deadline-reminder",
+    category: "News",
+    date: "2024-04-28",
+    headline: "Reminder: Annual Tax Filing Deadline Approaching",
+    shortDescription: "Ensure your annual tax and VAT filings are submitted before the upcoming deadline.",
+    isImportantNotice: false,
+  },
+  {
+    id: "ln-3",
+    slug: "free-compliance-workshop",
+    category: "News",
+    date: "2024-04-20",
+    headline: "Free Compliance Workshop for SMEs This Month",
+    shortDescription: "Join our consultants for a free workshop covering registration, tax and labour compliance basics.",
+    isImportantNotice: false,
+  },
+];
