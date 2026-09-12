@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Calendar } from "lucide-react";
-import { newsData } from "@/data/news";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { getLatestNews } from "@/lib/news-data";
 
-export function HeroSection() {
-  const latestNews = newsData.slice(0, 3);
+export async function HeroSection() {
+  const latestNews = await getLatestNews(3);
 
   return (
     <section className="relative bg-off-white overflow-hidden">
@@ -76,8 +76,8 @@ export function HeroSection() {
                   <div className="flex items-center space-x-2 text-xs text-muted-gray mb-2">
                     <span className="font-semibold text-primary-blue bg-blue-50 px-2 py-0.5 rounded">{news.category}</span>
                   </div>
-                  <h4 className="font-bold text-charcoal group-hover:text-primary-blue transition-colors line-clamp-2 mb-1">{news.headline}</h4>
-                  <p className="text-sm text-muted-gray line-clamp-2">{news.shortDescription}</p>
+                  <h4 className="font-bold text-charcoal group-hover:text-primary-blue transition-colors line-clamp-2 mb-1">{news.title}</h4>
+                  <p className="text-sm text-muted-gray line-clamp-2">{news.excerpt}</p>
                 </Link>
               ))}
             </div>

@@ -1,12 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { BarChart3, Building2, FileText, Image as ImageIcon, LogOut, Megaphone, Menu, Newspaper, Phone, Users, X } from "lucide-react";
-import { newsData, latestNewsData, type NewsItem } from "@/data/news";
+import { useEffect, useMemo, useState } from "react";
+import { BarChart3, Building2, FileText, Image as ImageIcon, LogOut, Menu, Newspaper, Phone, Users, X } from "lucide-react";
+import { newsData, type NewsItem } from "@/data/news";
 import { leadershipData, type TeamMember } from "@/data/team";
 import { clientsData, type Client } from "@/data/clients";
-import { ImageUploadField } from "./ImageUploadField";
-import { ClientManager, NewsManager, TeamManager } from "./VisualContentEditors";
+import { ClientManager, NewsManager, TeamManager, type NewsSaveResult } from "./VisualContentEditors";
 
  type ContactSettings = {
   city: string;
@@ -17,8 +16,8 @@ import { ClientManager, NewsManager, TeamManager } from "./VisualContentEditors"
   footerDescription: string;
 };
 
-type Section = "overview" | "top-contact" | "news" | "latest-news" | "leadership" | "clients" | "footer";
-type ContentKey = "top-contact" | "news" | "latest-news" | "leadership" | "clients" | "footer";
+type Section = "overview" | "top-contact" | "news" | "leadership" | "clients" | "footer";
+type ContentKey = "top-contact" | "footer" | "leadership" | "clients";
 
 const initialContact: ContactSettings = {
   city: "Kathmandu, Nepal",
@@ -43,8 +42,7 @@ function readStored<T>(key: string, fallback: T): T {
 const navItems: { id: Section; label: string; icon: typeof BarChart3 }[] = [
   { id: "overview", label: "Overview", icon: BarChart3 },
   { id: "top-contact", label: "Contact details", icon: Phone },
-  { id: "news", label: "Latest Updates", icon: Newspaper },
-  { id: "latest-news", label: "Latest News", icon: Megaphone },
+  { id: "news", label: "News & updates", icon: Newspaper },
   { id: "leadership", label: "Team members", icon: Users },
   { id: "clients", label: "Our clients", icon: Building2 },
   { id: "footer", label: "Footer details", icon: FileText },
@@ -64,19 +62,32 @@ export function AdminDashboard() {
   const [section, setSection] = useState<Section>("overview");
   const [mobileNav, setMobileNav] = useState(false);
   const [contact, setContact] = useState<ContactSettings>(() => readStored("contact", initialContact));
-  const [news, setNews] = useState<NewsItem[]>(() => readStored("news", newsData));
-  const [latestNews, setLatestNews] = useState<NewsItem[]>(() => readStored("latest-news", latestNewsData));
+  // News starts from the static seed and is replaced by the live list from
+  // /api/admin/news (MongoDB-backed) once the dashboard loads.
+  const [news, setNews] = useState<NewsItem[]>(newsData);
   const [leadership, setLeadership] = useState<TeamMember[]>(() => readStored("leadership", leadershipData));
   const [clients, setClients] = useState<Client[]>(() => readStored("clients", clientsData));
-  const [selectedNews, setSelectedNews] = useState(0);
   const [selectedLeader, setSelectedLeader] = useState(0);
   const [selectedClient, setSelectedClient] = useState(0);
   const [notice, setNotice] = useState("");
 
+  useEffect(() => {
+    let active = true;
+    fetch("/api/admin/news")
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error("News API unavailable"))))
+      .then((data) => {
+        if (active && Array.isArray(data.items) && data.items.length > 0) {
+          setNews(data.items);
+        }
+      })
+      .catch(() => {
+        /* Keep the static seed when the API cannot be reached. */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
-  const selectedNewsItem = news[selectedNews];
-  const selectedLeaderItem = leadership[selectedLeader];
-  const selectedClientItem = clients[selectedClient];
   const currentTitle = navItems.find((item) => item.id === section)?.label ?? "Overview";
   const publishedNews = useMemo(() => news.filter((item) => item.isImportantNotice).length, [news]);
 
@@ -86,8 +97,12 @@ export function AdminDashboard() {
   }
 
   async function saveContent(key: ContentKey, data: unknown) {
-    const next = { contact, news, latestNews, leadership, clients, [key === "top-contact" || key === "footer" ? "contact" : key]: data };
-    window.localStorage.setItem("mgc-admin-content", JSON.stringify(next));
+    try {
+      const stored = JSON.parse(window.localStorage.getItem("mgc-admin-content") ?? "{}");
+      window.localStorage.setItem("mgc-admin-content", JSON.stringify({ ...stored, [key]: data }));
+    } catch {
+      /* Local preview cache is best-effort. */
+    }
     try {
       const response = await fetch("/api/admin/content", {
         method: "PUT",
@@ -100,15 +115,52 @@ export function AdminDashboard() {
     }
   }
 
-  function addNews() {
-    const item: NewsItem = { id: `new-${Date.now()}`, slug: "new-update", category: "Business Insights", date: new Date().toISOString().slice(0, 10), headline: "New update", shortDescription: "Write a short description for this update.", isImportantNotice: true, imageUrl: "" };
-    setNews((current) => [...current, item]);
-    setSelectedNews(news.length);
+  // Per-item news persistence through the authenticated /api/admin/news routes.
+  async function createNews(draft: Omit<NewsItem, "id">): Promise<NewsSaveResult> {
+    try {
+      const response = await fetch("/api/admin/news", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(draft),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) return { ok: false, error: data.error ?? "Saving failed" };
+      setNews((current) => [...current, data.item]);
+      showNotice("News item created.");
+      return { ok: true };
+    } catch {
+      return { ok: false, error: "Network error while saving the news item" };
+    }
   }
 
-  function addLatestNews() {
-    const item: NewsItem = { id: `new-${Date.now()}`, slug: "new-news", category: "News", date: new Date().toISOString().slice(0, 10), headline: "New latest news", shortDescription: "Write a short description for this news item.", isImportantNotice: false, imageUrl: "" };
-    setLatestNews((current) => [...current, item]);
+  async function updateNews(item: NewsItem): Promise<NewsSaveResult> {
+    try {
+      const response = await fetch("/api/admin/news", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id, item }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) return { ok: false, error: data.error ?? "Saving failed" };
+      setNews((current) => current.map((entry) => (entry.id === item.id ? data.item : entry)));
+      showNotice("News item updated.");
+      return { ok: true };
+    } catch {
+      return { ok: false, error: "Network error while saving the news item" };
+    }
+  }
+
+  async function deleteNews(id: string): Promise<NewsSaveResult> {
+    try {
+      const response = await fetch(`/api/admin/news?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) return { ok: false, error: data.error ?? "Deleting failed" };
+      setNews((current) => current.filter((entry) => entry.id !== id));
+      showNotice("News item deleted.");
+      return { ok: true };
+    } catch {
+      return { ok: false, error: "Network error while deleting the news item" };
+    }
   }
 
   function addLeader() {
@@ -150,11 +202,10 @@ export function AdminDashboard() {
 
         <main className="mx-auto max-w-7xl p-5 sm:p-8">
           {notice && <div className="fixed right-6 top-24 z-40 rounded-lg bg-slate-900 px-5 py-3 text-sm text-white shadow-xl">{notice}</div>}
-          {section === "overview" && <Overview newsCount={news.length} latestNewsCount={latestNews.length} publishedNews={publishedNews} leaderCount={leadership.length} clientCount={clients.length} onSelect={setSection} />}
+          {section === "overview" && <Overview newsCount={news.length} publishedNews={publishedNews} contactFields={Object.values(contact).filter(Boolean).length} leaderCount={leadership.length} clientCount={clients.length} onSelect={setSection} />}
           {section === "top-contact" && <ContactEditor title="Top contact bar" fields={contact} setFields={setContact} fieldsToShow={["city", "email", "primaryPhone", "secondaryPhone"]} onSave={() => saveContent("top-contact", contact)} />}
           {section === "footer" && <ContactEditor title="Footer contact details" fields={contact} setFields={setContact} fieldsToShow={["address", "primaryPhone", "secondaryPhone", "email", "footerDescription"]} onSave={() => saveContent("footer", contact)} />}
-          {section === "news" && <NewsManager title="Latest Updates" items={news} setItems={setNews} onAdd={addNews} onSave={() => saveContent("news", news)} />}
-          {section === "latest-news" && <NewsManager title="Latest News" items={latestNews} setItems={setLatestNews} onAdd={addLatestNews} onSave={() => saveContent("latest-news", latestNews)} showFeatured={false} />}
+          {section === "news" && <NewsManager items={news} onCreate={createNews} onUpdate={updateNews} onDelete={deleteNews} />}
           {section === "leadership" && <TeamManager items={leadership} setItems={setLeadership} onAdd={addLeader} onSave={() => saveContent("leadership", leadership)} />}
           {section === "clients" && <ClientManager items={clients} setItems={setClients} onAdd={addClient} onSave={() => saveContent("clients", clients)} />}
         </main>
@@ -163,37 +214,13 @@ export function AdminDashboard() {
   );
 }
 
-function Overview({ newsCount, latestNewsCount, publishedNews, leaderCount, clientCount, onSelect }: { newsCount: number; latestNewsCount: number; publishedNews: number; leaderCount: number; clientCount: number; onSelect: (section: Section) => void }) {
-  const cards = [{ label: "Latest Updates", value: newsCount, detail: `${publishedNews} featured updates`, section: "news" as Section, icon: Newspaper }, { label: "Latest News", value: latestNewsCount, detail: "Ticker headlines on the navbar", section: "latest-news" as Section, icon: Megaphone }, { label: "Leadership members", value: leaderCount, detail: "Manage team profiles", section: "leadership" as Section, icon: Users }, { label: "Clients", value: clientCount, detail: "Manage client records", section: "clients" as Section, icon: Building2 }];
+function Overview({ newsCount, publishedNews, contactFields, leaderCount, clientCount, onSelect }: { newsCount: number; publishedNews: number; contactFields: number; leaderCount: number; clientCount: number; onSelect: (section: Section) => void }) {
+  const cards = [{ label: "News & updates", value: newsCount, detail: `${publishedNews} marked as important notices`, section: "news" as Section, icon: Newspaper }, { label: "Contact details", value: contactFields, detail: "Top bar and footer contact info", section: "top-contact" as Section, icon: Phone }, { label: "Leadership members", value: leaderCount, detail: "Manage team profiles", section: "leadership" as Section, icon: Users }, { label: "Clients", value: clientCount, detail: "Manage client records", section: "clients" as Section, icon: Building2 }];
   return <><div className="mb-8"><p className="text-sm font-medium text-amber-600">Welcome to your website editor</p><h2 className="mt-1 text-3xl font-bold text-slate-900">What would you like to update?</h2><p className="mt-2 max-w-2xl text-slate-500">Choose an area below or use the menu on the left. You do not need any technical knowledge—edit the words, then press <strong>Save changes</strong>.</p></div><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">{cards.map(({ label, value, detail, section, icon: Icon }) => <button key={label} onClick={() => onSelect(section)} className="rounded-xl border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-amber-400"><div className="flex items-center justify-between"><span className="text-sm font-medium text-slate-500">{label}</span><Icon className="h-5 w-5 text-amber-500" /></div><p className="mt-4 text-4xl font-bold">{value}</p><p className="mt-2 text-sm text-slate-500">{detail}</p><span className="mt-5 inline-flex text-sm font-semibold text-amber-700">Edit this section →</span></button>)}</div><div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-6"><div className="flex gap-4"><ImageIcon aria-hidden="true" className="h-5 w-5 text-amber-600" /><div><h3 className="font-semibold text-slate-900">Need to change a photo?</h3><p className="mt-1 text-sm text-slate-600">Paste the photo link into the photo field. Image upload buttons will be added when Cloudinary is connected.</p></div></div></div></>;
-}
-
-function EditorFrame({ title, description, children, onSave, onAdd, onDelete, count }: { title: string; description: string; children: React.ReactNode; onSave: () => void; onAdd?: () => void; onDelete?: () => void; count?: number }) {
-  return <div><div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><h2 className="text-3xl font-bold">{title}</h2><p className="mt-2 max-w-2xl text-sm text-slate-500">{description}</p></div><div className="flex flex-wrap gap-3">{onAdd && <button onClick={onAdd} className="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700">+ Add new</button>}{onDelete && <button onClick={onDelete} className="rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50">Delete this item</button>}<button onClick={onSave} className="rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-amber-400">Save changes</button></div></div>{count !== undefined && <p className="mb-4 text-xs uppercase tracking-widest text-slate-400">{count} records</p>}{children}</div>;
 }
 
 function ContactEditor({ title, fields, setFields, fieldsToShow, onSave }: { title: string; fields: ContactSettings; setFields: React.Dispatch<React.SetStateAction<ContactSettings>>; fieldsToShow: (keyof ContactSettings)[]; onSave: () => void }) {
   const [editing, setEditing] = useState(false);
   const labels: Record<keyof ContactSettings, string> = { city: "City / location", email: "Email address", primaryPhone: "Primary phone", secondaryPhone: "Secondary phone", address: "Office address", footerDescription: "Footer company description" };
   return <div><div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><h2 className="text-3xl font-bold">{title}</h2><p className="mt-2 max-w-2xl text-sm text-slate-500">Review these details as they appear on the website. Click Edit details to make a change.</p></div>{!editing && <button onClick={() => setEditing(true)} className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-slate-700">Edit details</button>}</div>{editing ? <div className="max-w-3xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm"><div className="grid gap-5 sm:grid-cols-2">{fieldsToShow.map((key) => <div key={key} className={key === "address" || key === "footerDescription" ? "sm:col-span-2" : ""}><Field label={labels[key]} value={fields[key]} multiline={key === "address" || key === "footerDescription"} onChange={(value) => setFields((current) => ({ ...current, [key]: value }))} /></div>)}</div><div className="mt-6 flex gap-3"><button onClick={() => setEditing(false)} className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold">Cancel</button><button onClick={() => { onSave(); setEditing(false); }} className="rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950">Save changes</button></div></div> : <div className="max-w-3xl divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white shadow-sm">{fieldsToShow.map((key) => <div key={key} className="grid gap-1 px-6 py-4 sm:grid-cols-[190px_1fr]"><span className="text-sm font-semibold text-slate-500">{labels[key]}</span><span className="text-sm text-slate-800">{fields[key] || "Not provided"}</span></div>)}</div>}</div>;
-}
-
-function NewsEditor({ items, selected, setSelected, item, setItems, onAdd, onDelete, onSave }: { items: NewsItem[]; selected: number; setSelected: (value: number) => void; item: NewsItem; setItems: React.Dispatch<React.SetStateAction<NewsItem[]>>; onAdd: () => void; onDelete: () => void; onSave: () => void }) {
-  const update = (patch: Partial<NewsItem>) => setItems((current) => current.map((entry, index) => index === selected ? { ...entry, ...patch } : entry));
-  const updateHeadline = (headline: string) => update({ headline, slug: headline.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") });
-  return <EditorFrame title="News & updates" description="Create announcements and articles for your visitors. The items marked as featured appear in the Latest Update area on the home page." onSave={onSave} onAdd={onAdd} onDelete={onDelete} count={items.length}><div className="grid grid-cols-1 gap-6"><RecordList items={items.map((entry) => entry.headline)} selected={selected} setSelected={setSelected} /><div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"><div className="grid gap-5 sm:grid-cols-2"><Field label="Headline" value={item.headline} onChange={updateHeadline} /><Field label="Category" value={item.category} onChange={(value) => update({ category: value })} /><Field label="Date" value={item.date} onChange={(value) => update({ date: value })} /></div><div className="mt-6"><ImageUploadField label="News image" value={item.imageUrl ?? ""} onChangeAction={(value) => update({ imageUrl: value })} /></div><div className="mt-5"><Field label="Short description" value={item.shortDescription} multiline onChange={(value) => update({ shortDescription: value })} /></div><div className="mt-5 flex items-center gap-3"><input id="featured" type="checkbox" checked={item.isImportantNotice} onChange={(event) => update({ isImportantNotice: event.target.checked })} /><label htmlFor="featured" className="text-sm font-medium">Show this in the Latest Update area on the home page</label></div></div></div></EditorFrame>;
-}
-
-function LeadershipEditor({ items, selected, setSelected, item, setItems, onAdd, onDelete, onSave }: { items: TeamMember[]; selected: number; setSelected: (value: number) => void; item: TeamMember; setItems: React.Dispatch<React.SetStateAction<TeamMember[]>>; onAdd: () => void; onDelete: () => void; onSave: () => void }) {
-  const update = (patch: Partial<TeamMember>) => setItems((current) => current.map((entry, index) => index === selected ? { ...entry, ...patch } : entry));
-  return <EditorFrame title="Team members" description="Add the people on your team, update their details, or remove someone who is no longer listed." onSave={onSave} onAdd={onAdd} onDelete={onDelete} count={items.length}><div className="grid grid-cols-1 gap-6"><RecordList items={items.map((entry) => entry.name)} selected={selected} setSelected={setSelected} /><div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"><div className="grid gap-5 sm:grid-cols-2"><Field label="Name" value={item.name} onChange={(value) => update({ name: value })} /><Field label="Position" value={item.position} onChange={(value) => update({ position: value })} /><Field label="Qualification" value={item.qualification} onChange={(value) => update({ qualification: value })} /></div><div className="mt-6"><ImageUploadField label="Profile photo" value={item.imageUrl ?? ""} onChangeAction={(value) => update({ imageUrl: value })} /></div><div className="mt-5"><Field label="Experience / biography" value={item.experience} multiline onChange={(value) => update({ experience: value })} /></div></div></div></EditorFrame>;
-}
-
-function ClientsEditor({ items, selected, setSelected, item, setItems, onAdd, onDelete, onSave }: { items: Client[]; selected: number; setSelected: (value: number) => void; item: Client; setItems: React.Dispatch<React.SetStateAction<Client[]>>; onAdd: () => void; onDelete: () => void; onSave: () => void }) {
-  const update = (patch: Partial<Client>) => setItems((current) => current.map((entry, index) => index === selected ? { ...entry, ...patch } : entry));
-  return <EditorFrame title="Our clients" description="Add or remove the organizations displayed in the clients section of your website." onSave={onSave} onAdd={onAdd} onDelete={onDelete} count={items.length}><div className="grid grid-cols-1 gap-6"><RecordList items={items.map((entry) => entry.name)} selected={selected} setSelected={setSelected} /><div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"><div className="grid gap-5"><Field label="Client name" value={item.name} onChange={(value) => update({ name: value })} /><ImageUploadField label="Client logo or image" value={item.imageUrl ?? ""} onChangeAction={(value) => update({ imageUrl: value })} /></div></div></div></EditorFrame>;
-}
-
-function RecordList({ items, selected, setSelected }: { items: string[]; selected: number; setSelected: (value: number) => void }) {
-  return <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm"><p className="mb-3 px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Click a card to edit</p><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{items.map((label, index) => <button key={`${label}-${index}`} onClick={() => setSelected(index)} className={`mb-0 flex min-h-20 w-full items-center rounded-xl border px-4 py-4 text-left text-sm ${selected === index ? "border-amber-400 bg-amber-50 font-semibold text-amber-800" : "border-slate-100 text-slate-600 hover:border-slate-300 hover:bg-slate-50"}`}>{label || "Untitled record"}</button>)}</div></div>;
 }
