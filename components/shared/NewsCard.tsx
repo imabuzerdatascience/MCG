@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Calendar } from "lucide-react";
 import type { NewsItem } from "@/data/news";
-import { formatNewsDate, truncateChars } from "@/lib/utils";
+import { truncateChars } from "@/lib/utils";
 
 // Preview card only: it renders the short excerpt (hard-truncated), never the
 // article body. The full content lives on /news/[slug].
@@ -24,10 +24,7 @@ export function NewsCard({ news }: { news: NewsItem }) {
           <span className="rounded-full bg-yellow-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-deep-green">
             {news.category}
           </span>
-          <span className="flex items-center text-xs text-muted-gray">
-            <Calendar className="w-3 h-3 mr-1" />
-            {formatNewsDate(news.date)}
-          </span>
+          
         </div>
         <h3 className="mb-3 text-xl font-bold text-deep-green transition-colors group-hover:text-dark-green">
           <Link href={`/news/${news.slug}`}>{news.title}</Link>

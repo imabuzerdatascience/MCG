@@ -2,15 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/shared/PageHero";
 import { getNewsBySlug, getNewsItems } from "@/lib/news-data";
-import { formatNewsDate } from "@/lib/utils";
-import { Calendar, Tag, ArrowLeft } from "lucide-react";
+import { Tag, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 // ISR: known slugs are prerendered at build time; slugs that only exist in
 // MongoDB are rendered on first request (dynamicParams defaults to true) and
 // then cached. Both paths refresh every 5 minutes and immediately after admin
 // mutations via revalidatePath in /api/admin/news.
-export const revalidate = 300;
+// export const revalidate = 300;
 
 export async function generateStaticParams() {
   const newsItems = await getNewsItems();
@@ -64,10 +63,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
                   <Tag className="w-4 h-4 mr-2" />
                   {news.category}
                 </div>
-                <div className="flex items-center text-muted-gray font-medium">
-                  <Calendar className="w-5 h-5 mr-2" />
-                  Published on: {formatNewsDate(news.date)}
-                </div>
+                
                 {news.isImportantNotice && (
                   <div className="bg-light-yellow text-charcoal text-xs font-bold px-3 py-1 rounded border border-yellow-300 uppercase">
                     Important Notice

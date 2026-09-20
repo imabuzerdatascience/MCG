@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import { getLatestNews } from "@/lib/news-data";
-import { formatNewsDate } from "@/lib/utils";
 
 export async function NewsTicker() {
   const tickerItems = await getLatestNews(4);
@@ -27,7 +26,6 @@ export async function NewsTicker() {
                 href={`/news/${notice.slug}`}
                 className="text-sm hover:text-deep-green transition-colors inline-block group"
               >
-                <span className="font-semibold mr-2">{formatNewsDate(notice.date)}</span>
                 <span className="group-hover:underline">{notice.title}</span>
               </Link>
             ))}

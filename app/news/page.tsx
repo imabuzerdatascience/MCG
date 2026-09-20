@@ -6,7 +6,7 @@ import { getNewsItems } from "@/lib/news-data";
 
 // ISR: prerendered at build, refreshed at most 5 minutes later (and instantly
 // after admin mutations via revalidatePath in /api/admin/news).
-export const revalidate = 300;
+// export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "News & Insights | MGC Associates",
