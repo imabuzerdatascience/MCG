@@ -19,7 +19,6 @@ type NewsManagerProps = {
 };
 type TeamManagerProps = { items: TeamMember[]; setItems: React.Dispatch<React.SetStateAction<TeamMember[]>>; onSave: () => void; onAdd: () => void };
 type ClientManagerProps = { items: Client[]; setItems: React.Dispatch<React.SetStateAction<Client[]>>; onSave: () => void; onAdd: () => void };
-
 type FieldProps = { label: string; value: string; onChange: (value: string) => void; multiline?: boolean };
 
 function TextField({ label, value, onChange, multiline = false }: FieldProps) {
