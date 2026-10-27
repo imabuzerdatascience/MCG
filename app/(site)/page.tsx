@@ -8,15 +8,15 @@ import { AssociatesFeature } from "@/components/home/AssociatesFeature";
 import { ClientsCarousel } from "@/components/home/ClientsCarousel";
 import { NewsInsights } from "@/components/home/NewsInsights";
 import { CTASection } from "@/components/home/CTASection";
-import { NewsCarousel } from "@/components/home/NewsCarousel";
-import { getNepaliNews } from "@/lib/nepali-news";
+import { HomeHeroCarousel } from "@/components/home/HomeHeroCarousel";
+import { getHomeHeroSlides } from "@/lib/home-hero-slide-data";
 
 export default async function Home() {
-  const newsItems = await getNepaliNews();
+  const slides = await getHomeHeroSlides();
 
   return (
     <>
-      <NewsCarousel items={newsItems} />
+      <HomeHeroCarousel slides={slides} />
       <HeroSection />
       <ServicesGrid />
       <WhyChooseUs />

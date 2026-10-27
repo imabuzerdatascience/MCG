@@ -1,11 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, Building2, FileText, Image as ImageIcon, LogOut, Menu, Newspaper, Phone, Users, X } from "lucide-react";
+import { BarChart3, Building2, FileText, Image as ImageIcon, Images, LogOut, Menu, Newspaper, Phone, Users, X } from "lucide-react";
 import { newsData, type NewsItem } from "@/data/news";
 import { leadershipData, type TeamMember } from "@/data/team";
 import { clientsData, type Client } from "@/data/clients";
 import { ClientManager, NewsManager, TeamManager, type NewsSaveResult } from "./VisualContentEditors";
+import { HomeHeroSlidesEditor } from "./HomeHeroSlidesEditor";
+import {
+  defaultHomeHeroSlides,
+  getHomeHeroSlidesOrDefaults,
+  HOME_HERO_SLIDES_KEY,
+  MAX_HOME_HERO_SLIDES,
+  type HomeHeroSlide,
+  sanitizeHomeHeroSlides,
+} from "@/lib/home-hero-slides";
 
  type ContactSettings = {
   city: string;
@@ -16,7 +25,7 @@ import { ClientManager, NewsManager, TeamManager, type NewsSaveResult } from "./
   footerDescription: string;
 };
 
-type Section = "overview" | "top-contact" | "news" | "leadership" | "clients" | "footer";
+type Section = "overview" | "home-slides" | "top-contact" | "news" | "leadership" | "clients" | "footer";
 type ContentKey = "top-contact" | "footer" | "leadership" | "clients";
 
 const initialContact: ContactSettings = {
@@ -41,6 +50,7 @@ function readStored<T>(key: string, fallback: T): T {
 
 const navItems: { id: Section; label: string; icon: typeof BarChart3 }[] = [
   { id: "overview", label: "Overview", icon: BarChart3 },
+  { id: "home-slides", label: "Homepage slides", icon: Images },
   { id: "top-contact", label: "Contact details", icon: Phone },
   { id: "news", label: "News & updates", icon: Newspaper },
   { id: "leadership", label: "Team members", icon: Users },
@@ -67,6 +77,9 @@ export function AdminDashboard() {
   const [news, setNews] = useState<NewsItem[]>(newsData);
   const [leadership, setLeadership] = useState<TeamMember[]>(() => readStored("leadership", leadershipData));
   const [clients, setClients] = useState<Client[]>(() => readStored("clients", clientsData));
+  const [homeSlides, setHomeSlides] = useState<HomeHeroSlide[]>(() =>
+    readStored("home-hero-slides", defaultHomeHeroSlides),
+  );
   const [selectedLeader, setSelectedLeader] = useState(0);
   const [selectedClient, setSelectedClient] = useState(0);
   const [notice, setNotice] = useState("");
@@ -82,6 +95,23 @@ export function AdminDashboard() {
       })
       .catch(() => {
         /* Keep the static seed when the API cannot be reached. */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/admin/content?key=${HOME_HERO_SLIDES_KEY}`)
+      .then((response) =>
+        response.ok ? response.json() : Promise.reject(new Error("Homepage slides unavailable")),
+      )
+      .then((result) => {
+        if (active) setHomeSlides(getHomeHeroSlidesOrDefaults(result.data));
+      })
+      .catch(() => {
+        if (active) showNotice("Could not load saved homepage slides. Showing the local preview.");
       });
     return () => {
       active = false;
@@ -112,6 +142,34 @@ export function AdminDashboard() {
       showNotice(response.ok ? "Saved to MongoDB and local preview" : "Saved to local preview. Configure MongoDB to sync online.");
     } catch {
       showNotice("Saved to local preview. Configure MongoDB to sync online.");
+    }
+  }
+
+  async function saveHomeSlides(): Promise<NewsSaveResult> {
+    const sanitized = sanitizeHomeHeroSlides(homeSlides);
+    if (!sanitized.ok) return sanitized;
+
+    try {
+      const response = await fetch("/api/admin/content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: HOME_HERO_SLIDES_KEY, data: sanitized.value }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) return { ok: false, error: result.error ?? "Saving slides failed" };
+      try {
+        const stored = JSON.parse(window.localStorage.getItem("mgc-admin-content") ?? "{}");
+        window.localStorage.setItem(
+          "mgc-admin-content",
+          JSON.stringify({ ...stored, "home-hero-slides": sanitized.value }),
+        );
+      } catch {
+        // MongoDB is authoritative; the local preview cache is optional.
+      }
+      showNotice("Homepage slides saved.");
+      return { ok: true };
+    } catch {
+      return { ok: false, error: "Network error while saving homepage slides" };
     }
   }
 
@@ -202,7 +260,8 @@ export function AdminDashboard() {
 
         <main className="mx-auto max-w-7xl p-5 sm:p-8">
           {notice && <div className="fixed right-6 top-24 z-40 rounded-lg bg-slate-900 px-5 py-3 text-sm text-white shadow-xl">{notice}</div>}
-          {section === "overview" && <Overview newsCount={news.length} publishedNews={publishedNews} contactFields={Object.values(contact).filter(Boolean).length} leaderCount={leadership.length} clientCount={clients.length} onSelect={setSection} />}
+          {section === "overview" && <Overview newsCount={news.length} publishedNews={publishedNews} contactFields={Object.values(contact).filter(Boolean).length} leaderCount={leadership.length} clientCount={clients.length} slideCount={homeSlides.length} onSelect={setSection} />}
+          {section === "home-slides" && <HomeHeroSlidesEditor items={homeSlides} setItems={setHomeSlides} onSave={saveHomeSlides} />}
           {section === "top-contact" && <ContactEditor title="Top contact bar" fields={contact} setFields={setContact} fieldsToShow={["city", "email", "primaryPhone", "secondaryPhone"]} onSave={() => saveContent("top-contact", contact)} />}
           {section === "footer" && <ContactEditor title="Footer contact details" fields={contact} setFields={setContact} fieldsToShow={["address", "primaryPhone", "secondaryPhone", "email", "footerDescription"]} onSave={() => saveContent("footer", contact)} />}
           {section === "news" && <NewsManager items={news} onCreate={createNews} onUpdate={updateNews} onDelete={deleteNews} />}
@@ -214,8 +273,8 @@ export function AdminDashboard() {
   );
 }
 
-function Overview({ newsCount, publishedNews, contactFields, leaderCount, clientCount, onSelect }: { newsCount: number; publishedNews: number; contactFields: number; leaderCount: number; clientCount: number; onSelect: (section: Section) => void }) {
-  const cards = [{ label: "News & updates", value: newsCount, detail: `${publishedNews} marked as important notices`, section: "news" as Section, icon: Newspaper }, { label: "Contact details", value: contactFields, detail: "Top bar and footer contact info", section: "top-contact" as Section, icon: Phone }, { label: "Leadership members", value: leaderCount, detail: "Manage team profiles", section: "leadership" as Section, icon: Users }, { label: "Clients", value: clientCount, detail: "Manage client records", section: "clients" as Section, icon: Building2 }];
+function Overview({ newsCount, publishedNews, contactFields, leaderCount, clientCount, slideCount, onSelect }: { newsCount: number; publishedNews: number; contactFields: number; leaderCount: number; clientCount: number; slideCount: number; onSelect: (section: Section) => void }) {
+  const cards = [{ label: "Homepage slides", value: slideCount, detail: `Edit images and text · up to ${MAX_HOME_HERO_SLIDES} slides`, section: "home-slides" as Section, icon: Images }, { label: "News & updates", value: newsCount, detail: `${publishedNews} marked as important notices`, section: "news" as Section, icon: Newspaper }, { label: "Contact details", value: contactFields, detail: "Top bar and footer contact info", section: "top-contact" as Section, icon: Phone }, { label: "Leadership members", value: leaderCount, detail: "Manage team profiles", section: "leadership" as Section, icon: Users }, { label: "Clients", value: clientCount, detail: "Manage client records", section: "clients" as Section, icon: Building2 }];
   return <><div className="mb-8"><p className="text-sm font-medium text-amber-600">Welcome to your website editor</p><h2 className="mt-1 text-3xl font-bold text-slate-900">What would you like to update?</h2><p className="mt-2 max-w-2xl text-slate-500">Choose an area below or use the menu on the left. You do not need any technical knowledge—edit the words, then press <strong>Save changes</strong>.</p></div><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">{cards.map(({ label, value, detail, section, icon: Icon }) => <button key={label} onClick={() => onSelect(section)} className="rounded-xl border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-amber-400"><div className="flex items-center justify-between"><span className="text-sm font-medium text-slate-500">{label}</span><Icon className="h-5 w-5 text-amber-500" /></div><p className="mt-4 text-4xl font-bold">{value}</p><p className="mt-2 text-sm text-slate-500">{detail}</p><span className="mt-5 inline-flex text-sm font-semibold text-amber-700">Edit this section →</span></button>)}</div><div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-6"><div className="flex gap-4"><ImageIcon aria-hidden="true" className="h-5 w-5 text-amber-600" /><div><h3 className="font-semibold text-slate-900">Need to change a photo?</h3><p className="mt-1 text-sm text-slate-600">Upload images in the relevant editor. Image uploads require Cloudinary to be configured.</p></div></div></div></>;
 }
 

@@ -1,10 +1,21 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getMongoDb } from "@/lib/mongodb";
+import {
+  HOME_HERO_SLIDES_KEY,
+  sanitizeHomeHeroSlides,
+} from "@/lib/home-hero-slides";
 
 // News is managed through /api/admin/news as a first-class content type,
 // so it is intentionally not part of the key/value siteContent allowlist.
-const allowedKeys = new Set(["top-contact", "footer", "leadership", "clients"]);
+const allowedKeys = new Set([
+  "top-contact",
+  "footer",
+  "leadership",
+  "clients",
+  HOME_HERO_SLIDES_KEY,
+]);
 
 export async function GET(request: Request) {
   if (!(await isAdminAuthenticated())) {
@@ -35,9 +46,16 @@ export async function PUT(request: Request) {
     | { key?: unknown; data?: unknown }
     | undefined;
   const key = typeof payload?.key === "string" ? payload.key : undefined;
-  const data = payload?.data;
+  let data = payload?.data;
   if (!key || !allowedKeys.has(key) || data === undefined) {
     return NextResponse.json({ error: "Invalid content payload" }, { status: 400 });
+  }
+  if (key === HOME_HERO_SLIDES_KEY) {
+    const result = sanitizeHomeHeroSlides(data);
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
+    }
+    data = result.value;
   }
   try {
     const database = await getMongoDb();
@@ -46,6 +64,7 @@ export async function PUT(request: Request) {
       { $set: { key, data, updatedAt: new Date() }, $setOnInsert: { createdAt: new Date() } },
       { upsert: true },
     );
+    if (key === HOME_HERO_SLIDES_KEY) revalidatePath("/", "page");
     return NextResponse.json({ success: true, storage: "mongodb" });
   } catch (error) {
     console.error("Content save error:", error);
